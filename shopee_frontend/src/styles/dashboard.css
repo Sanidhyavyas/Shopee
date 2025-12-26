@@ -1,0 +1,73 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #2d3748;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.sidebar button:hover {
+  background: #5a67d8;
+}
+
+.content {
+  flex: 1;
+  padding: 30px;
+  background: #f7f7f7;
+}
+
+/* Form Styling */
+.outlet-form {
+  background: white;
+  padding: 25px;
+  max-width: 600px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.outlet-form h2 {
+  margin-bottom: 20px;
+}
+
+.outlet-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Row for side-by-side inputs */
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+.outlet-form button {
+  width: 100%;
+  padding: 12px;
+  background-color: #667eea;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.outlet-form button:hover {
+  background-color: #5a67d8;
+}
