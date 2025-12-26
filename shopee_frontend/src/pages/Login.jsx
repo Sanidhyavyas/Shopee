@@ -20,7 +20,7 @@ function Login() {
   return (
     <div className="page">
       <form className="card" onSubmit={handleLogin}>
-        <h2>Login</h2>
+        <h2>Shopee Login</h2>
 
         <input
           placeholder="Username"
