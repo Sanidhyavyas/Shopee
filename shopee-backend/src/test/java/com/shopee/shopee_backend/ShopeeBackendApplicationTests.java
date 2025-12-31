@@ -1,10 +1,10 @@
-package com.example.demo;
+package com.shopee.shopee_backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DemoApplicationTests {
+class ShopeeBackendApplicationTests {
 
 	@Test
 	void contextLoads() {
