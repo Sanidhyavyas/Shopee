@@ -1,0 +1,128 @@
+/* franchiseDashboard.css */
+
+/* 1. Main Layout Container */
+.dashboard-layout {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #f3f4f6; /* Light gray background for the main area */
+  }
+  
+  /* 2. Sidebar Styling */
+  .sidebar {
+    width: 260px;
+    background-color: #1e1b4b; /* Professional Deep Navy */
+    color: #e0e7ff;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+    flex-shrink: 0; /* Prevents sidebar from squishing */
+  }
+  
+  .sidebar h2 {
+    font-size: 1.25rem;
+    color: #ffffff;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 0.5px;
+  }
+  
+  /* Sidebar Navigation Buttons */
+  .sidebar button {
+    background: transparent;
+    border: none;
+    color: #c7d2fe;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+  }
+  
+  .sidebar button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(4px); /* Subtle slide effect */
+  }
+  
+  /* Logout Button - Pushed to bottom */
+  .sidebar .logout {
+    margin-top: auto; /* Uses Flexbox to push this to the bottom */
+    color: #fca5a5; /* Light Red */
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  
+  .sidebar .logout:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #fecaca;
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+  
+  /* 3. Main Content Area */
+  .content {
+    flex: 1;
+    padding: 3rem;
+    overflow-y: auto;
+  }
+  
+  .content h1 {
+    font-size: 1.8rem;
+    color: #111827;
+    margin-bottom: 2rem;
+    font-weight: 700;
+  }
+  
+  /* 4. Statistics Grid */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); /* Responsive Grid */
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* 5. Stat Cards */
+  .card {
+    background: #ffffff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid #4f46e5; /* Accent border on the left */
+  }
+  
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card h3 {
+    margin: 0;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280; /* Muted gray title */
+    font-weight: 600;
+  }
+  
+  .card p {
+    margin: 0.5rem 0 0 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1f2937; /* Dark number */
+  }
+  
+  /* Helper text at bottom */
+  .content > p {
+    color: #9ca3af;
+    font-size: 0.9rem;
+    margin-top: 2rem;
+    font-style: italic;
+  }
