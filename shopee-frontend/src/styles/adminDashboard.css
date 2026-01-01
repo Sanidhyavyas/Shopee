@@ -23,6 +23,8 @@ body {
   flex-direction: column;
   gap: 1.5rem; /* Space between elements */
   text-align: center;
+  /* align-items: center;
+  justify-content: center; */
 }
 
 /* 3. The Heading */
