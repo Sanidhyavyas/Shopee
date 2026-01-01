@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import "../styles/auth.css";
+import "../../styles/auth.css";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -11,7 +11,7 @@ function Login() {
     e.preventDefault();
 
     if (username === "admin" && password === "123") {
-      navigate("/dashboard");
+      navigate("/admin/dashboard");
     } else {
       alert("Invalid credentials");
     }
