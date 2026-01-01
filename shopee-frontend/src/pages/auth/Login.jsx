@@ -12,7 +12,6 @@ function Login() {
     e.preventDefault();
     setError("");
 
-    // Temporary development users (simulate backend)
     let fakeResponse = null;
 
     if (username === "admin" && password === "123") {
@@ -30,14 +29,14 @@ function Login() {
       return;
     }
 
-    // Store exactly like a real JWT-based backend
+    // Store auth data AFTER successful login
     localStorage.setItem("token", fakeResponse.token);
     localStorage.setItem("role", fakeResponse.role);
 
-    // Role-based redirection
+    // Redirect based on role
     if (fakeResponse.role === "SUPER_ADMIN") {
       navigate("/admin/dashboard");
-    } else if (fakeResponse.role === "FRANCHISE_ADMIN") {
+    } else {
       navigate("/franchise/dashboard");
     }
   }
