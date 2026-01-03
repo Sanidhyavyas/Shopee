@@ -5,14 +5,15 @@ import RegisterFranchise from "./pages/admin/RegisterFranchise";
 import ViewFranchise from "./pages/admin/ViewFranchise";
 import RequireAuth from "./routes/RequireAuth";
 import FranchiseDashboard from "./pages/franchise/FranchiseDashboard";
-
+import SelectFranchise from "./pages/franchise/SelectFranchise";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
-       {/* SUPER ADMIN ROUTES */}
-       <Route
+
+      {/* SUPER ADMIN ROUTES */}
+      <Route
         path="/admin/dashboard"
         element={
           <RequireAuth allowedRole="SUPER_ADMIN">
@@ -20,6 +21,7 @@ function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/admin/register-franchise"
         element={
@@ -28,6 +30,7 @@ function App() {
           </RequireAuth>
         }
       />
+
       <Route
         path="/admin/view-franchises"
         element={
@@ -36,7 +39,17 @@ function App() {
           </RequireAuth>
         }
       />
-      {/* FRANCHISE USER ROUTES */}
+
+      {/* FRANCHISE ADMIN ROUTES */}
+      <Route
+        path="/select-franchise"
+        element={
+          <RequireAuth allowedRole="FRANCHISE_ADMIN">
+            <SelectFranchise />
+          </RequireAuth>
+        }
+      />
+
       <Route
         path="/franchise/dashboard"
         element={
