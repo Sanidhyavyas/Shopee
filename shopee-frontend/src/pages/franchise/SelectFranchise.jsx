@@ -4,7 +4,10 @@ import "../../styles/selectFranchise.css";
 
 function SelectFranchise() {
   const navigate = useNavigate();
-  const [franchises, setFranchises] = useState([]);
+  const [franchises, setFranchises] = useState(() => {
+    const stored = localStorage.getItem("franchises");
+    return stored ? JSON.parse(stored) : [];
+  });
 
   useEffect(() => {
     // Load from login session
@@ -16,7 +19,7 @@ function SelectFranchise() {
       return;
     }
 
-    setFranchises(JSON.parse(stored));
+    // No need to setFranchises here, as it's initialized
   }, [navigate]);
 
   function selectFranchise(id) {

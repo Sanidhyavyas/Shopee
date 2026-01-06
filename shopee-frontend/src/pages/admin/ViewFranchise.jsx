@@ -13,7 +13,7 @@ const MOCK_FRANCHISES = [
 function ViewFranchise() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [franchises, setFranchises] = useState(MOCK_FRANCHISES);
+  const [franchises] = useState(MOCK_FRANCHISES);
 
   // Filter logic for the search bar
   const filteredFranchises = franchises.filter((f) =>
