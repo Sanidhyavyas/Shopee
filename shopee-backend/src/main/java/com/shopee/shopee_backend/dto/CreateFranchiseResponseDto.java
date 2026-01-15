@@ -1,16 +1,16 @@
 package com.shopee.shopee_backend.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class UserDto {
-    private Long id;
+public class CreateFranchiseResponseDto {
+
+    private Long franchiseId;
     private String email;
-    private String role;
-    private boolean active;
+    private String temporaryPassword;
+    private String message;
 }

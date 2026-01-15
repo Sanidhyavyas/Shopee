@@ -1,13 +1,14 @@
 package com.shopee.shopee_backend.controller;
 
+import com.shopee.shopee_backend.dto.CreateFranchiseRequestDto;
+import com.shopee.shopee_backend.dto.CreateFranchiseResponseDto;
+import com.shopee.shopee_backend.dto.FranchiseDto;
 import com.shopee.shopee_backend.dto.UserDto;
 import com.shopee.shopee_backend.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class AdminController {
 
     private final AdminService adminService;
 
-    @GetMapping("/view-franchise")
-    public ResponseEntity<List<UserDto>> getFranchiseList(){
+    @GetMapping("/franchise")
+    public ResponseEntity<List<FranchiseDto>> getFranchiseList(){
         return ResponseEntity.ok(adminService.getAllFranchise());
     }
 
@@ -27,4 +28,11 @@ public class AdminController {
     public ResponseEntity<List<UserDto>> getAllUsers(){
         return ResponseEntity.ok(adminService.getAllUsers());
     }
+
+    @PostMapping("/franchise")
+    public ResponseEntity<CreateFranchiseResponseDto> createFranchise(@RequestBody CreateFranchiseRequestDto createFranchiseRequestDto){
+        return ResponseEntity.ok(adminService.createFranchise(createFranchiseRequestDto));
+    }
+
+
 }
