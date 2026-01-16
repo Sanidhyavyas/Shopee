@@ -5,6 +5,7 @@ import com.shopee.shopee_backend.dto.CreateFranchiseResponseDto;
 import com.shopee.shopee_backend.dto.FranchiseDto;
 import com.shopee.shopee_backend.dto.UserDto;
 import com.shopee.shopee_backend.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AdminController {
     }
 
     @PostMapping("/franchise")
-    public ResponseEntity<CreateFranchiseResponseDto> createFranchise(@RequestBody CreateFranchiseRequestDto createFranchiseRequestDto){
+    public ResponseEntity<CreateFranchiseResponseDto> createFranchise(@RequestBody @Valid CreateFranchiseRequestDto createFranchiseRequestDto){
         return ResponseEntity.ok(adminService.createFranchise(createFranchiseRequestDto));
     }
 
