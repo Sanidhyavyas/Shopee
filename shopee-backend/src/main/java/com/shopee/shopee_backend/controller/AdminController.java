@@ -28,6 +28,7 @@ public class AdminController {
      * Endpoint: GET /admin/franchise
      * Fetches the complete list of franchises for the dashboard table.
      */
+
     @GetMapping("/franchise")
     public ResponseEntity<List<FranchiseDto>> getFranchiseList(){
         // ResponseEntity.ok() returns an HTTP 200 Status
@@ -47,12 +48,11 @@ public class AdminController {
      * Endpoint: POST /admin/franchise
      * Handles new franchise registration.
      * * @Valid: Triggers the Jakarta Validation constraints defined in CreateFranchiseRequestDto.
-     * @RequestBody : Maps the incoming JSON data from the React frontend to the DTO.
+     * {@RequestBody} : Maps the incoming JSON data from the React frontend to the DTO.
      */
     @PostMapping("/franchise")
     public ResponseEntity<CreateFranchiseResponseDto> createFranchise(
             @RequestBody @Valid CreateFranchiseRequestDto createFranchiseRequestDto){
-
         // Returns 200 OK along with the newly created franchise credentials
         return ResponseEntity.ok(adminService.createFranchise(createFranchiseRequestDto));
     }

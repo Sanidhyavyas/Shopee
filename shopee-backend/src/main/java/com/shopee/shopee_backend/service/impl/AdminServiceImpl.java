@@ -15,13 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-/**
- * Service implementation for Administrative tasks.
- * Handles user management and franchise onboarding.
- */
 @RequiredArgsConstructor
 @Service
 public class AdminServiceImpl implements AdminService {
@@ -31,20 +26,19 @@ public class AdminServiceImpl implements AdminService {
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    /**
-     * Retrieves all registered franchises and maps them to DTOs for the UI.
-     */
     @Override
-    public List<FranchiseDto> getAllFranchise(){
+    public List<FranchiseDto> getAllFranchise() {
         return franchiseRepository.findAll()
                 .stream()
-                .map(franchise -> modelMapper.map(franchise, FranchiseDto.class))
+                .map(franchise -> {
+                    FranchiseDto dto = modelMapper.map(franchise, FranchiseDto.class);
+                    dto.setOwnerEmail(franchise.getOwner().getEmail());
+                    dto.setOwnerMobile(franchise.getOwner().getMobile());
+                    return dto;
+                })
                 .toList();
     }
 
-    /**
-     * Retrieves all users system-wide.
-     */
     @Override
     public List<UserDto> getAllUsers() {
         return userRepository.findAll()
@@ -53,39 +47,30 @@ public class AdminServiceImpl implements AdminService {
                 .toList();
     }
 
-    /**
-     * Onboards a new franchise.
-     * Logic: If the owner's email doesn't exist, it creates a new User with a random password.
-     */
     @Override
     public CreateFranchiseResponseDto createFranchise(CreateFranchiseRequestDto request) {
 
-        // 1. Check if an account already exists for this email
         User owner = userRepository.findByEmail(request.getEmail()).orElse(null);
         String rawPassword = null;
 
-        // 2. Provision a new User account if one doesn't exist
-        if(owner == null){
+        if (owner == null) {
             owner = new User();
             owner.setEmail(request.getEmail());
-            owner.setRole("FRANCHISE ADMIN");
+            owner.setMobile(request.getMobile());
+            owner.setRole("FRANCHISE_ADMIN");
             owner.setActive(true);
 
-            // Generate and encode a temporary password for the new owner
             rawPassword = generatePassword();
             owner.setPassword(passwordEncoder.encode(rawPassword));
 
-            // Persist the user so we have an ID for the franchise relationship
             owner = userRepository.save(owner);
         }
 
-        // 3. Link the franchise to the User (Owner) and save
         Franchise franchise = mapToFranchiseEntity(request, owner);
-        franchiseRepository.save(franchise);
+        Franchise saved = franchiseRepository.save(franchise);
 
-        // 4. Construct the response, including the temporary password only if generated
         CreateFranchiseResponseDto response = new CreateFranchiseResponseDto();
-        response.setFranchiseId(owner.getId());
+        response.setFranchiseId(saved.getFranchiseId());
         response.setEmail(owner.getEmail());
 
         if (rawPassword != null) {
@@ -98,16 +83,10 @@ public class AdminServiceImpl implements AdminService {
         return response;
     }
 
-    /**
-     * Helper method to manually map the Request Dto to a Franchise Entity.
-     * Established the crucial many-to-one relationship with the Owner.
-     */
-    private static Franchise mapToFranchiseEntity(CreateFranchiseRequestDto request, User owner) {
+    private Franchise mapToFranchiseEntity(CreateFranchiseRequestDto request, User owner) {
         Franchise franchise = new Franchise();
         franchise.setOutletName(request.getOutletName());
-        franchise.setOwner(owner); // Linking the entity to the User account
-        franchise.setEmail(request.getEmail());
-        franchise.setMobile(request.getMobile());
+        franchise.setOwner(owner);
         franchise.setAddress(request.getAddress());
         franchise.setCity(request.getCity());
         franchise.setState(request.getState());
@@ -116,9 +95,6 @@ public class AdminServiceImpl implements AdminService {
         return franchise;
     }
 
-    /**
-     * Generates a short, 8-character random string for temporary passwords.
-     */
     private String generatePassword() {
         return UUID.randomUUID().toString().substring(0, 8);
     }

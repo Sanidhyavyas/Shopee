@@ -1,7 +1,6 @@
 package com.shopee.shopee_backend.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,10 +14,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Franchise {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long franchiseId;
 
     // Outlet display name
     @Column(nullable = false)
@@ -29,12 +27,7 @@ public class Franchise {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @Column(nullable = false)
-    private String email;
-
-    @Column(nullable = false)
-    private String mobile;
-
+    // Outlet location
     private String address;
     private String city;
     private String state;

@@ -1,6 +1,5 @@
 package com.shopee.shopee_backend.entity;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +17,15 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
-    // Used as login (email)
+    // Login + identity
     @Column(nullable = false, unique = true)
     private String email;
+
+    // Contact for owner
+    @Column(nullable = false)
+    private String mobile;
 
     // BCrypt hashed password
     @Column(nullable = false)

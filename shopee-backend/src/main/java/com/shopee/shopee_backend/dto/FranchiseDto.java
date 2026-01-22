@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data               // Generates boilerplate: getters, setters, toString, and value-based equality logic
 public class FranchiseDto {
 
-    private Long id;
+    private Long franchiseId;
 
     private String outletName;
 
@@ -21,7 +21,7 @@ public class FranchiseDto {
 
     private String state;
 
-    private String email;
+    private String ownerEmail;   // from User
 
-    private String mobile;
+    private String ownerMobile;  // from User
 }
