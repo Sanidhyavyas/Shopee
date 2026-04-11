@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/auth.css";
 
 function Login() {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(""); // email
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -15,56 +15,51 @@ function Login() {
     let fakeResponse = null;
 
     // SUPER ADMIN
-    if (username === "admin" && password === "123") {
+    if (username === "admin@shopee.com" && password === "123456") {
       fakeResponse = {
         token: "dev-super-admin-token",
         role: "SUPER_ADMIN",
       };
     }
 
-    // MULTI-OUTLET FRANCHISE ADMIN
-    else if (username === "store" && password === "123") {
+    // MULTI-OUTLET FRANCHISE ADMIN (rahul)
+    else if (username === "rahul@shopee.com" && password === "123456") {
       fakeResponse = {
         token: "dev-franchise-admin-token",
         role: "FRANCHISE_ADMIN",
         franchises: [
-          { id: 101, name: "Shopee Andheri" },
-          { id: 205, name: "Shopee Bandra" },
+          { id: 1, name: "Shopee Andheri" },
+          { id: 2, name: "Shopee Bandra" },
         ],
       };
     }
 
-    // SINGLE-OUTLET FRANCHISE ADMIN
-    else if (username === "single" && password === "123") {
+    // SINGLE-OUTLET FRANCHISE ADMIN (amit)
+    else if (username === "amit@shopee.com" && password === "123456") {
       fakeResponse = {
         token: "dev-single-franchise-token",
         role: "FRANCHISE_ADMIN",
-        franchises: [{ id: 301, name: "Shopee Pune" }],
+        franchises: [{ id: 3, name: "Shopee Pune" }],
       };
     } else {
-      setError("Invalid username or password");
+      setError("Invalid email or password");
       return;
     }
 
-    // Store auth data
     localStorage.setItem("token", fakeResponse.token);
     localStorage.setItem("role", fakeResponse.role);
 
-    // SUPER ADMIN ROUTING
     if (fakeResponse.role === "SUPER_ADMIN") {
       navigate("/admin/dashboard", { replace: true });
     }
 
-    // FRANCHISE ADMIN ROUTING
     if (fakeResponse.role === "FRANCHISE_ADMIN") {
       const franchises = fakeResponse.franchises;
 
       if (franchises.length === 1) {
-        // Auto select single outlet
         localStorage.setItem("franchiseId", franchises[0].id);
         navigate("/franchise/dashboard", { replace: true });
       } else {
-        // Save list for selection screen
         localStorage.setItem("franchises", JSON.stringify(franchises));
         navigate("/select-franchise", { replace: true });
       }
@@ -79,7 +74,7 @@ function Login() {
         {error && <p className="error">{error}</p>}
 
         <input
-          placeholder="Username"
+          placeholder="Email"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
