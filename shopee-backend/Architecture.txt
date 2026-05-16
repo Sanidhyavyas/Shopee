@@ -1,0 +1,17 @@
+
+Five layers of architecture:
+
+Frontend (React)
+      ↓
+Controllers (HTTP API)
+      ↓
+Services (Business Logic)
+      ↓
+Repositories (Data Access)
+      ↓
+Entities + PostgresSQL (Database)
+
+
+DATABASE LAYER – THE FOUNDATION
+
+currently have TWO tables: user and franchise

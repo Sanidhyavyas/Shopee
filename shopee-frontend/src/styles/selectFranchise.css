@@ -1,0 +1,87 @@
+/* selectFranchise.css */
+
+/* 1. Page Container: Centered Layout */
+.select-page-container {
+    min-height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f4f6; /* Light gray background */
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 2. The Card */
+  .selection-card {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft, deep shadow */
+    text-align: center;
+    border-top: 5px solid #4f46e5; /* Indigo accent bar at top */
+  }
+  
+  /* 3. Heading */
+  .selection-card h2 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    color: #111827;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+  
+  .selection-card p {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  
+  /* 4. The List Container */
+  .franchise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; /* Space between buttons */
+  }
+  
+  /* 5. The Buttons */
+  .outlet-button {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Pushes text to left, arrow to right */
+    width: 100%;
+  }
+  
+  /* Hover Effect */
+  .outlet-button:hover {
+    background-color: #e0e7ff; /* Light Indigo background */
+    border-color: #4f46e5;     /* Indigo border */
+    color: #4f46e5;            /* Indigo text */
+    transform: translateY(-2px); /* Slight lift */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Optional: Add an arrow icon using CSS pseudo-element */
+  .outlet-button::after {
+    content: "→";
+    font-weight: bold;
+    opacity: 0.5;
+    transition: transform 0.2s;
+  }
+  
+  .outlet-button:hover::after {
+    opacity: 1;
+    transform: translateX(5px); /* Move arrow to right on hover */
+  }

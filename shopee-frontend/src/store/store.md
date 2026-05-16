@@ -1,0 +1,1 @@
+store/ holds JWT, role, and franchise ID.
