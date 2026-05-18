@@ -65,7 +65,7 @@ public class ProductController {
     public ResponseEntity<ProductDto> updateProduct(
             @PathVariable Long franchiseId,
             @PathVariable Long productId,
-            @RequestBody UpdateProductRequestDto request) {
+            @RequestBody @Valid UpdateProductRequestDto request) {
         securityUtils.requireFranchiseAdminAccess(franchiseId);
         return ResponseEntity.ok(productService.updateProduct(franchiseId, productId, request));
     }
