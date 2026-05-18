@@ -4,6 +4,7 @@ import com.shopee.shopee_backend.config.SecurityUtils;
 import com.shopee.shopee_backend.dto.CreateOrderRequestDto;
 import com.shopee.shopee_backend.dto.OrderDto;
 import com.shopee.shopee_backend.dto.UpdateOrderStatusRequestDto;
+import com.shopee.shopee_backend.entity.OrderStatus;
 import com.shopee.shopee_backend.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -62,5 +63,13 @@ public class OrderController {
             @PathVariable Long orderId) {
         securityUtils.requireFranchiseAdminAccess(franchiseId);
         return ResponseEntity.ok(orderService.cancelOrder(franchiseId, orderId));
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<OrderDto>> filterByStatus(
+            @PathVariable Long franchiseId,
+            @RequestParam OrderStatus status) {
+        securityUtils.requireFranchiseAccess(franchiseId);
+        return ResponseEntity.ok(orderService.getOrdersByStatus(franchiseId, status));
     }
 }

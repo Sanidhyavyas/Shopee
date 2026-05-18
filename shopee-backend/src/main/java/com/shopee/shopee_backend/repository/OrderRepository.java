@@ -32,4 +32,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT COALESCE(SUM(o.totalAmount), 0) FROM Order o WHERE o.franchise.franchiseId = :franchiseId AND o.createdAt BETWEEN :from AND :to AND o.status != 'CANCELLED'")
     BigDecimal sumRevenueByFranchiseAndDateRange(Long franchiseId, LocalDateTime from, LocalDateTime to);
+
+    List<Order> findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(Long franchiseId, OrderStatus status);
 }

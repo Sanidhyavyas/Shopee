@@ -151,6 +151,14 @@ public class OrderServiceImpl implements OrderService {
         return toDto(orderRepository.save(order));
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderDto> getOrdersByStatus(Long franchiseId, OrderStatus status) {
+        return orderRepository
+                .findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(franchiseId, status)
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
     // ---- helpers ----
 
     private Order findOrderInFranchise(Long franchiseId, Long orderId) {
