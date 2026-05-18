@@ -19,4 +19,6 @@ public interface ProductService {
     void deleteProduct(Long franchiseId, Long productId);
 
     List<ProductDto> getLowStockProducts(Long franchiseId);
+
+    List<ProductDto> searchProducts(Long franchiseId, String keyword);
 }

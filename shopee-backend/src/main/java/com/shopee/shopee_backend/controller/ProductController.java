@@ -42,6 +42,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getLowStockProducts(franchiseId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDto>> searchProducts(
+            @PathVariable Long franchiseId,
+            @RequestParam String keyword) {
+        securityUtils.requireFranchiseAccess(franchiseId);
+        return ResponseEntity.ok(productService.searchProducts(franchiseId, keyword));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('FRANCHISE_ADMIN','SUPER_ADMIN')")
     public ResponseEntity<ProductDto> createProduct(

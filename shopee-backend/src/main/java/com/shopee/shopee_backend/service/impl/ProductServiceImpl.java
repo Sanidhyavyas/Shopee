@@ -120,6 +120,13 @@ public class ProductServiceImpl implements ProductService {
                 .stream().map(this::toDto).collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDto> searchProducts(Long franchiseId, String keyword) {
+        return productRepository.searchByNameOrSku(franchiseId, keyword)
+                .stream().map(this::toDto).collect(Collectors.toList());
+    }
+
     // ---- helpers ----
 
     private void requireSameFranchise(Product product, Long franchiseId) {

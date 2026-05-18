@@ -26,4 +26,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySkuAndFranchiseFranchiseId(String sku, Long franchiseId);
 
     boolean existsBySkuAndFranchiseFranchiseId(String sku, Long franchiseId);
+
+    @Query("SELECT p FROM Product p WHERE p.franchise.franchiseId = :franchiseId AND p.active = true " +
+           "AND (LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(p.sku) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    List<Product> searchByNameOrSku(Long franchiseId, String keyword);
 }
