@@ -1,66 +1,66 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../../styles/franchiseDashboard.css"; 
+import api from "../../services/apiService";
+import "../../styles/franchiseDashboard.css";
 
 function FranchiseDashboard() {
   const navigate = useNavigate();
+  const franchiseId = localStorage.getItem("franchiseId");
+  const [stats, setStats] = useState({ totalProducts: 0, todaySales: 0, lowStockItems: 0 });
+
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
+
+    Promise.allSettled([
+      api.get(`/franchise/${franchiseId}/products`),
+      api.get(`/franchise/${franchiseId}/products/low-stock`),
+      api.get(`/franchise/${franchiseId}/reports/sales-summary?from=${today}&to=${today}`),
+    ]).then(([productsRes, lowStockRes, salesRes]) => {
+      setStats({
+        totalProducts: productsRes.status === "fulfilled" ? productsRes.value.data.length : 0,
+        lowStockItems: lowStockRes.status === "fulfilled" ? lowStockRes.value.data.length : 0,
+        todaySales: salesRes.status === "fulfilled" ? salesRes.value.data.totalRevenue ?? 0 : 0,
+      });
+    });
+  }, [franchiseId]);
 
   function handleLogout() {
-    // Optional: Add a confirmation check
-    if(window.confirm("Are you sure you want to log out?")) {
+    if (window.confirm("Are you sure you want to log out?")) {
       localStorage.clear();
       navigate("/");
     }
   }
 
   return (
-    // Changed class name to match the new CSS layout
     <div className="dashboard-layout">
-      
-      {/* Sidebar Section */}
       <aside className="sidebar">
         <h2>My Outlet</h2>
 
-        <button onClick={() => navigate("/franchise/dashboard")}>
-          Dashboard
-        </button>
+        <button onClick={() => navigate("/franchise/dashboard")}>Dashboard</button>
+        <button onClick={() => navigate("/franchise/products")}>Products</button>
+        <button onClick={() => navigate("/franchise/orders")}>Orders</button>
+        <button onClick={() => navigate("/franchise/staff")}>Staff</button>
 
-        <button onClick={() => alert("Products page coming next")}>
-          Products
-        </button>
-
-        <button onClick={() => alert("Orders page coming next")}>
-          Orders
-        </button>
-
-        <button onClick={() => alert("Staff page coming next")}>
-          Staff
-        </button>
-
-        <button className="logout" onClick={handleLogout}>
-          Logout
-        </button>
+        <button className="logout" onClick={handleLogout}>Logout</button>
       </aside>
 
-      {/* Main Content Section */}
       <main className="content">
         <h1>Welcome to Your Store</h1>
 
         <div className="stats">
           <div className="card">
             <h3>Total Products</h3>
-            <p>0</p>
+            <p>{stats.totalProducts}</p>
           </div>
 
-          <div className="card" style={{ borderLeftColor: '#10b981' }}>
-            {/* Overrode color for Sales to Green */}
-            <h3>Today’s Sales</h3>
-            <p>₹0</p>
+          <div className="card" style={{ borderLeftColor: "#10b981" }}>
+            <h3>Today's Sales</h3>
+            <p>Rs.{Number(stats.todaySales).toFixed(2)}</p>
           </div>
 
-          <div className="card" style={{ borderLeftColor: '#ef4444' }}>
-            {/* Overrode color for Low Stock to Red */}
+          <div className="card" style={{ borderLeftColor: "#ef4444" }}>
             <h3>Low Stock Items</h3>
-            <p>0</p>
+            <p>{stats.lowStockItems}</p>
           </div>
         </div>
 
