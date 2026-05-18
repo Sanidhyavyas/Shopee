@@ -1,68 +1,54 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/apiService";
 import "../../styles/auth.css";
 
 function Login() {
-  const [username, setUsername] = useState(""); // email
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  function handleLogin(e) {
+  async function handleLogin(e) {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
-    let fakeResponse = null;
+    try {
+      const res = await api.post("/auth/login", { email: username, password });
+      const { token, role, franchises } = res.data;
 
-    // SUPER ADMIN
-    if (username === "admin@shopee.com" && password === "123456") {
-      fakeResponse = {
-        token: "dev-super-admin-token",
-        role: "SUPER_ADMIN",
-      };
-    }
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
 
-    // MULTI-OUTLET FRANCHISE ADMIN (rahul)
-    else if (username === "rahul@shopee.com" && password === "123456") {
-      fakeResponse = {
-        token: "dev-franchise-admin-token",
-        role: "FRANCHISE_ADMIN",
-        franchises: [
-          { id: 1, name: "Shopee Andheri" },
-          { id: 2, name: "Shopee Bandra" },
-        ],
-      };
-    }
-
-    // SINGLE-OUTLET FRANCHISE ADMIN (amit)
-    else if (username === "amit@shopee.com" && password === "123456") {
-      fakeResponse = {
-        token: "dev-single-franchise-token",
-        role: "FRANCHISE_ADMIN",
-        franchises: [{ id: 3, name: "Shopee Pune" }],
-      };
-    } else {
-      setError("Invalid email or password");
-      return;
-    }
-
-    localStorage.setItem("token", fakeResponse.token);
-    localStorage.setItem("role", fakeResponse.role);
-
-    if (fakeResponse.role === "SUPER_ADMIN") {
-      navigate("/admin/dashboard", { replace: true });
-    }
-
-    if (fakeResponse.role === "FRANCHISE_ADMIN") {
-      const franchises = fakeResponse.franchises;
-
-      if (franchises.length === 1) {
-        localStorage.setItem("franchiseId", franchises[0].id);
-        navigate("/franchise/dashboard", { replace: true });
-      } else {
-        localStorage.setItem("franchises", JSON.stringify(franchises));
-        navigate("/select-franchise", { replace: true });
+      if (role === "SUPER_ADMIN") {
+        navigate("/admin/dashboard", { replace: true });
+        return;
       }
+
+      if (role === "FRANCHISE_ADMIN") {
+        if (franchises && franchises.length === 1) {
+          localStorage.setItem("franchiseId", String(franchises[0].franchiseId));
+          navigate("/franchise/dashboard", { replace: true });
+        } else if (franchises && franchises.length > 1) {
+          localStorage.setItem("franchises", JSON.stringify(franchises));
+          navigate("/select-franchise", { replace: true });
+        } else {
+          navigate("/franchise/dashboard", { replace: true });
+        }
+        return;
+      }
+
+      // STAFF role
+      if (franchises && franchises.length > 0) {
+        localStorage.setItem("franchiseId", String(franchises[0].franchiseId));
+      }
+      navigate("/franchise/dashboard", { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -78,6 +64,7 @@ function Login() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
+          autoComplete="email"
         />
 
         <input
@@ -86,12 +73,16 @@ function Login() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          autoComplete="current-password"
         />
 
-        <button type="submit">Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );
 }
 
 export default Login;
+
