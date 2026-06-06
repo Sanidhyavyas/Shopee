@@ -22,4 +22,9 @@ public interface AuditLogService {
                                            LocalDateTime to, Pageable pageable);
 
     Page<AuditLogDto> getLogsByActor(Long actorId, Pageable pageable);
+
+    /**
+     * Returns all audit logs for the given franchise and time window as a UTF-8 CSV byte array.
+     */
+    byte[] exportCsv(Long franchiseId, LocalDateTime from, LocalDateTime to);
 }

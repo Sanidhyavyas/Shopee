@@ -11,15 +11,23 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -94,6 +102,44 @@ public class AuditLogServiceImpl implements AuditLogService {
         return auditLogRepository.findByActorId(actorId, pageable).map(this::toDto);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public byte[] exportCsv(Long franchiseId, LocalDateTime from, LocalDateTime to) {
+        // Fetch all matching rows ordered by timestamp (no page limit for export)
+        Pageable all = PageRequest.of(0, Integer.MAX_VALUE,
+                Sort.by(Sort.Direction.ASC, "timestamp"));
+        List<AuditLog> rows = auditLogRepository
+                .findByFranchiseIdAndTimestampBetween(franchiseId, from, to, all)
+                .getContent();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (PrintWriter pw = new PrintWriter(
+                new OutputStreamWriter(baos, StandardCharsets.UTF_8))) {
+            // BOM so Excel opens UTF-8 correctly
+            baos.write(0xEF);
+            baos.write(0xBB);
+            baos.write(0xBF);
+            pw.println("id,timestamp,actorId,actorEmail,actorRole,action," +
+                       "entityType,entityId,franchiseId,ipAddress,oldValue,newValue");
+            for (AuditLog r : rows) {
+                pw.printf("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
+                        r.getId(),
+                        r.getTimestamp(),
+                        r.getActorId(),
+                        escapeCsv(r.getActorEmail()),
+                        escapeCsv(r.getActorRole()),
+                        escapeCsv(r.getAction()),
+                        escapeCsv(r.getEntityType()),
+                        escapeCsv(r.getEntityId()),
+                        r.getFranchiseId() != null ? r.getFranchiseId() : "",
+                        escapeCsv(r.getIpAddress()),
+                        escapeCsv(r.getOldValue()),
+                        escapeCsv(r.getNewValue()));
+            }
+        }
+        return baos.toByteArray();
+    }
+
     // ---- helpers ----
 
     private String toJson(Object value) {
@@ -141,5 +187,11 @@ public class AuditLogServiceImpl implements AuditLogService {
 
     private AuditLogDto toDto(AuditLog log) {
         return modelMapper.map(log, AuditLogDto.class);
+    }
+
+    /** Wraps a value in double-quotes and escapes any embedded double-quotes. */
+    private String escapeCsv(String value) {
+        if (value == null) return "";
+        return "\"" + value.replace("\"", "\"\"") + "\"";
     }
 }
