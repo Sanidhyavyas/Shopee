@@ -11,6 +11,7 @@ import com.shopee.shopee_backend.exception.ResourceNotFoundException;
 import com.shopee.shopee_backend.repository.CategoryRepository;
 import com.shopee.shopee_backend.repository.FranchiseRepository;
 import com.shopee.shopee_backend.repository.ProductRepository;
+import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final FranchiseRepository franchiseRepository;
     private final CategoryRepository categoryRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -75,7 +77,10 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
         }
 
-        return toDto(productRepository.save(product));
+        ProductDto created = toDto(productRepository.save(product));
+        auditLogService.log("CREATE_PRODUCT", "Product",
+                String.valueOf(created.getProductId()), null, created);
+        return created;
     }
 
     @Override
@@ -84,6 +89,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));
         requireSameFranchise(product, franchiseId);
+
+        ProductDto oldProduct = toDto(product);
 
         if (request.getName() != null) product.setName(request.getName());
         if (request.getDescription() != null) product.setDescription(request.getDescription());
@@ -100,7 +107,10 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(category);
         }
 
-        return toDto(productRepository.save(product));
+        ProductDto updated = toDto(productRepository.save(product));
+        auditLogService.log("UPDATE_PRODUCT", "Product",
+                String.valueOf(productId), oldProduct, updated);
+        return updated;
     }
 
     @Override
@@ -109,8 +119,11 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));
         requireSameFranchise(product, franchiseId);
+        ProductDto snapshot = toDto(product);
         product.setActive(false);
         productRepository.save(product);
+        auditLogService.log("DELETE_PRODUCT", "Product",
+                String.valueOf(productId), snapshot, null);
     }
 
     @Override
