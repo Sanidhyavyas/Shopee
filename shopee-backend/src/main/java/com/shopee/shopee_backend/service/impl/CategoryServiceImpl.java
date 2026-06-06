@@ -10,6 +10,8 @@ import com.shopee.shopee_backend.repository.CategoryRepository;
 import com.shopee.shopee_backend.repository.FranchiseRepository;
 import com.shopee.shopee_backend.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "categories", key = "#franchiseId")
     public List<CategoryDto> getCategoriesByFranchise(Long franchiseId) {
         return categoryRepository.findAllByFranchiseFranchiseId(franchiseId)
                 .stream()
@@ -35,6 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "categories", key = "#franchiseId")
     public CategoryDto createCategory(Long franchiseId, CreateCategoryRequestDto request) {
         Franchise franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Franchise not found: " + franchiseId));

@@ -14,6 +14,8 @@ import com.shopee.shopee_backend.repository.ProductRepository;
 import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "products", key = "#franchiseId")
     public List<ProductDto> getProductsByFranchise(Long franchiseId) {
         return productRepository.findAllByFranchiseFranchiseIdAndActiveTrue(franchiseId)
                 .stream().map(this::toDto).collect(Collectors.toList());
@@ -48,6 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "products", key = "#franchiseId")
     public ProductDto createProduct(Long franchiseId, CreateProductRequestDto request) {
         Franchise franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Franchise not found: " + franchiseId));
@@ -85,6 +89,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "products", key = "#franchiseId")
     public ProductDto updateProduct(Long franchiseId, Long productId, UpdateProductRequestDto request) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));
@@ -115,6 +120,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "products", key = "#franchiseId")
     public void deleteProduct(Long franchiseId, Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found: " + productId));

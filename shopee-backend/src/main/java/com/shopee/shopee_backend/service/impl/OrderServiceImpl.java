@@ -18,6 +18,7 @@ import com.shopee.shopee_backend.repository.ProductRepository;
 import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "dashboardStats", allEntries = true)
     public OrderDto createOrder(Long franchiseId, CreateOrderRequestDto request) {
         Franchise franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Franchise not found: " + franchiseId));
@@ -117,6 +119,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "dashboardStats", allEntries = true)
     public OrderDto updateOrderStatus(Long franchiseId, Long orderId, UpdateOrderStatusRequestDto request) {
         Order order = findOrderInFranchise(franchiseId, orderId);
 

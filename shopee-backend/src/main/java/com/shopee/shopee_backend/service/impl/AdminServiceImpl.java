@@ -14,6 +14,9 @@ import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +41,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable("franchises")
     public List<FranchiseDto> getAllFranchise() {
         return franchiseRepository.findAll()
                 .stream()
@@ -61,6 +65,10 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @Caching(evict = {
+        @CacheEvict(value = "franchises", allEntries = true),
+        @CacheEvict(value = "dashboardStats", allEntries = true)
+    })
     public CreateFranchiseResponseDto createFranchise(CreateFranchiseRequestDto request) {
         User owner = userRepository.findByEmail(request.getEmail()).orElse(null);
         String rawPassword = null;
@@ -108,6 +116,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable("dashboardStats")
     public DashboardStatsDto getDashboardStats() {
         long totalFranchises = franchiseRepository.count();
         long activeFranchises = franchiseRepository.findAllByActiveTrue().size();
@@ -136,6 +145,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "franchises", allEntries = true)
     public FranchiseDto updateFranchise(Long franchiseId, UpdateFranchiseRequestDto request) {
         Franchise franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Franchise not found: " + franchiseId));
