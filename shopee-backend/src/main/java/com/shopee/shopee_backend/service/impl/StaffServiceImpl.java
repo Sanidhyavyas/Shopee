@@ -15,11 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,9 +35,9 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<StaffDto> getStaffByFranchise(Long franchiseId) {
-        return userRepository.findAllByRoleAndAssignedFranchiseFranchiseId("STAFF", franchiseId)
-                .stream().map(this::toDto).collect(Collectors.toList());
+    public Page<StaffDto> getStaffByFranchise(Long franchiseId, Pageable pageable) {
+        return userRepository.findAllByRoleAndAssignedFranchiseFranchiseId("STAFF", franchiseId, pageable)
+                .map(this::toDto);
     }
 
     @Override

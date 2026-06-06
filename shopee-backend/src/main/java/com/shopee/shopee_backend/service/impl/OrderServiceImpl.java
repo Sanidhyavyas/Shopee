@@ -19,6 +19,8 @@ import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,9 +42,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDto> getOrdersByFranchise(Long franchiseId) {
-        return orderRepository.findAllByFranchiseFranchiseIdOrderByCreatedAtDesc(franchiseId)
-                .stream().map(this::toDto).collect(Collectors.toList());
+    public Page<OrderDto> getOrdersByFranchise(Long franchiseId, Pageable pageable) {
+        return orderRepository.findAllByFranchiseFranchiseIdOrderByCreatedAtDesc(franchiseId, pageable)
+                .map(this::toDto);
     }
 
     @Override
@@ -165,10 +167,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderDto> getOrdersByStatus(Long franchiseId, OrderStatus status) {
+    public Page<OrderDto> getOrdersByStatus(Long franchiseId, OrderStatus status, Pageable pageable) {
         return orderRepository
-                .findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(franchiseId, status)
-                .stream().map(this::toDto).collect(Collectors.toList());
+                .findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(franchiseId, status, pageable)
+                .map(this::toDto);
     }
 
     // ---- helpers ----

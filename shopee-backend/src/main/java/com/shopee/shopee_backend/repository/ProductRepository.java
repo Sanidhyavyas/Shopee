@@ -1,6 +1,8 @@
 package com.shopee.shopee_backend.repository;
 
 import com.shopee.shopee_backend.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -12,6 +14,8 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findAllByFranchiseFranchiseIdAndActiveTrue(Long franchiseId);
+
+    Page<Product> findAllByFranchiseFranchiseIdAndActiveTrue(Long franchiseId, Pageable pageable);
 
     List<Product> findAllByFranchiseFranchiseId(Long franchiseId);
 

@@ -3,12 +3,14 @@ package com.shopee.shopee_backend.service;
 import com.shopee.shopee_backend.dto.CreateProductRequestDto;
 import com.shopee.shopee_backend.dto.ProductDto;
 import com.shopee.shopee_backend.dto.UpdateProductRequestDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface ProductService {
 
-    List<ProductDto> getProductsByFranchise(Long franchiseId);
+    Page<ProductDto> getProductsByFranchise(Long franchiseId, Pageable pageable);
 
     ProductDto getProduct(Long franchiseId, Long productId);
 

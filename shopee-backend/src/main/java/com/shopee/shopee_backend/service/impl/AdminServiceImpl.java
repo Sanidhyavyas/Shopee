@@ -17,6 +17,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,17 +43,13 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable("franchises")
-    public List<FranchiseDto> getAllFranchise() {
-        return franchiseRepository.findAll()
-                .stream()
-                .map(franchise -> {
-                    FranchiseDto dto = modelMapper.map(franchise, FranchiseDto.class);
-                    dto.setOwnerEmail(franchise.getOwner().getEmail());
-                    dto.setOwnerMobile(franchise.getOwner().getMobile());
-                    return dto;
-                })
-                .toList();
+    public Page<FranchiseDto> getAllFranchises(Pageable pageable) {
+        return franchiseRepository.findAll(pageable).map(franchise -> {
+            FranchiseDto dto = modelMapper.map(franchise, FranchiseDto.class);
+            dto.setOwnerEmail(franchise.getOwner().getEmail());
+            dto.setOwnerMobile(franchise.getOwner().getMobile());
+            return dto;
+        });
     }
 
     @Override

@@ -15,7 +15,8 @@ import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,10 +35,9 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     @Transactional(readOnly = true)
-    @Cacheable(value = "products", key = "#franchiseId")
-    public List<ProductDto> getProductsByFranchise(Long franchiseId) {
-        return productRepository.findAllByFranchiseFranchiseIdAndActiveTrue(franchiseId)
-                .stream().map(this::toDto).collect(Collectors.toList());
+    public Page<ProductDto> getProductsByFranchise(Long franchiseId, Pageable pageable) {
+        return productRepository.findAllByFranchiseFranchiseIdAndActiveTrue(franchiseId, pageable)
+                .map(this::toDto);
     }
 
     @Override

@@ -1,9 +1,14 @@
 package com.shopee.shopee_backend.controller;
 
 import com.shopee.shopee_backend.dto.*;
+import com.shopee.shopee_backend.exception.ApiException;
 import com.shopee.shopee_backend.service.AdminService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +22,17 @@ public class AdminController {
     private final AdminService adminService;
 
     @GetMapping("/franchise")
-    public ResponseEntity<List<FranchiseDto>> getFranchiseList() {
-        return ResponseEntity.ok(adminService.getAllFranchise());
+    public ResponseEntity<PagedResponseDto<FranchiseDto>> getFranchiseList(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+        if (size > 100) {
+            throw new ApiException("Page size must not exceed 100", HttpStatus.BAD_REQUEST);
+        }
+        Sort sort = direction.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return ResponseEntity.ok(PagedResponseDto.of(adminService.getAllFranchises(pageable)));
     }
 
     @GetMapping("/users")

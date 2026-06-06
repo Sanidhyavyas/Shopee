@@ -2,6 +2,8 @@ package com.shopee.shopee_backend.repository;
 
 import com.shopee.shopee_backend.entity.Order;
 import com.shopee.shopee_backend.entity.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -14,6 +16,8 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     List<Order> findAllByFranchiseFranchiseIdOrderByCreatedAtDesc(Long franchiseId);
+
+    Page<Order> findAllByFranchiseFranchiseIdOrderByCreatedAtDesc(Long franchiseId, Pageable pageable);
 
     List<Order> findAllByFranchiseFranchiseIdAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long franchiseId, LocalDateTime from, LocalDateTime to);
@@ -34,4 +38,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     BigDecimal sumRevenueByFranchiseAndDateRange(Long franchiseId, LocalDateTime from, LocalDateTime to);
 
     List<Order> findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(Long franchiseId, OrderStatus status);
+
+    Page<Order> findAllByFranchiseFranchiseIdAndStatusOrderByCreatedAtDesc(Long franchiseId, OrderStatus status, Pageable pageable);
 }

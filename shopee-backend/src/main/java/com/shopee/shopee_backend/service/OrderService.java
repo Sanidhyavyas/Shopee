@@ -4,12 +4,14 @@ import com.shopee.shopee_backend.dto.CreateOrderRequestDto;
 import com.shopee.shopee_backend.dto.OrderDto;
 import com.shopee.shopee_backend.dto.UpdateOrderStatusRequestDto;
 import com.shopee.shopee_backend.entity.OrderStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface OrderService {
 
-    List<OrderDto> getOrdersByFranchise(Long franchiseId);
+    Page<OrderDto> getOrdersByFranchise(Long franchiseId, Pageable pageable);
 
     OrderDto getOrder(Long franchiseId, Long orderId);
 
@@ -19,5 +21,5 @@ public interface OrderService {
 
     OrderDto cancelOrder(Long franchiseId, Long orderId);
 
-    List<OrderDto> getOrdersByStatus(Long franchiseId, OrderStatus status);
+    Page<OrderDto> getOrdersByStatus(Long franchiseId, OrderStatus status, Pageable pageable);
 }

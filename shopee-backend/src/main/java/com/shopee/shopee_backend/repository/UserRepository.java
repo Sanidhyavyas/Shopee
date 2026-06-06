@@ -1,6 +1,8 @@
 package com.shopee.shopee_backend.repository;
 
 import com.shopee.shopee_backend.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     /** Find all STAFF users assigned to a specific franchise. */
     List<User> findAllByRoleAndAssignedFranchiseFranchiseId(String role, Long franchiseId);
+
+    Page<User> findAllByRoleAndAssignedFranchiseFranchiseId(String role, Long franchiseId, Pageable pageable);
 
     /** Find all users by role (e.g. all FRANCHISE_ADMINs). */
     List<User> findAllByRole(String role);

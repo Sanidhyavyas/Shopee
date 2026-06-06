@@ -8,6 +8,8 @@ import com.shopee.shopee_backend.dto.LowStockAlertDto;
 import com.shopee.shopee_backend.dto.UpdateFranchiseRequestDto;
 import com.shopee.shopee_backend.dto.UpdateUserStatusRequestDto;
 import com.shopee.shopee_backend.dto.UserDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 /**
@@ -17,10 +19,10 @@ import java.util.List;
 public interface AdminService {
 
      /**
-      * Fetches a list of all registered franchises.
-      * @return List of FranchiseDto containing summary information for the UI.
+      * Fetches a paginated list of all registered franchises.
+      * @return Page of FranchiseDto containing summary information for the UI.
       */
-     List<FranchiseDto> getAllFranchise();
+     Page<FranchiseDto> getAllFranchises(Pageable pageable);
 
      /**
       * Retrieves all users currently in the system.
