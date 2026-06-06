@@ -22,6 +22,21 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_franchise_ts ON audit_log (franchise_id
 CREATE INDEX IF NOT EXISTS idx_audit_log_action       ON audit_log (action);
 
 -- =========================
+-- REFRESH TOKEN
+-- =========================
+CREATE TABLE IF NOT EXISTS refresh_token (
+    id          BIGSERIAL PRIMARY KEY,
+    token       VARCHAR(36)  NOT NULL UNIQUE,
+    user_id     BIGINT       NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    expires_at  TIMESTAMP    NOT NULL,
+    revoked     BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_refresh_token_token   ON refresh_token (token);
+CREATE INDEX IF NOT EXISTS idx_refresh_token_user_id ON refresh_token (user_id);
+
+-- =========================
 -- USERS (password = 123456)
 -- =========================
 INSERT INTO users (name, email, mobile, password, role, active, created_at)

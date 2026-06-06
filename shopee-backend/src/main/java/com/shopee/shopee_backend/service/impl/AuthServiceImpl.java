@@ -2,13 +2,16 @@ package com.shopee.shopee_backend.service.impl;
 
 import com.shopee.shopee_backend.config.JwtUtil;
 import com.shopee.shopee_backend.dto.*;
+import com.shopee.shopee_backend.entity.RefreshToken;
 import com.shopee.shopee_backend.entity.User;
 import com.shopee.shopee_backend.exception.ApiException;
+import com.shopee.shopee_backend.repository.RefreshTokenRepository;
 import com.shopee.shopee_backend.repository.UserRepository;
 import com.shopee.shopee_backend.service.AuthService;
 import com.shopee.shopee_backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -20,7 +23,219 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class AuthServiceImpl implements AuthService {
+
+    private static final int MAX_FAILED_ATTEMPTS = 5;
+    private static final int LOCK_DURATION_MINUTES = 30;
+    private static final int OTP_EXPIRY_MINUTES = 15;
+
+    private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
+
+    @Value("${jwt.refresh-expiration}")
+    private long refreshTokenExpirationMs;
+
+    @Override
+    @Transactional
+    public LoginResponseDto login(LoginRequestDto request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED));
+
+        if (!user.isActive()) {
+            throw new ApiException("Your account has been suspended. Please contact support.", HttpStatus.FORBIDDEN);
+        }
+
+        // Auto-unlock if lock has expired
+        if (user.isAccountLocked() && user.getLockExpiry() != null
+                && LocalDateTime.now().isAfter(user.getLockExpiry())) {
+            user.setAccountLocked(false);
+            user.setFailedLoginAttempts(0);
+            user.setLockExpiry(null);
+        }
+
+        if (user.isAccountLocked()) {
+            throw new ApiException(
+                    "Account locked. Try again after " + user.getLockExpiry().toString(),
+                    HttpStatus.LOCKED);
+        }
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        } catch (BadCredentialsException | DisabledException ex) {
+            int attempts = user.getFailedLoginAttempts() + 1;
+            user.setFailedLoginAttempts(attempts);
+            if (attempts >= MAX_FAILED_ATTEMPTS) {
+                user.setAccountLocked(true);
+                user.setLockExpiry(LocalDateTime.now().plusMinutes(LOCK_DURATION_MINUTES));
+                userRepository.save(user);
+                throw new ApiException(
+                        "Too many failed attempts. Account locked for " + LOCK_DURATION_MINUTES + " minutes.",
+                        HttpStatus.LOCKED);
+            }
+            userRepository.save(user);
+            throw new ApiException("Invalid credentials", HttpStatus.UNAUTHORIZED);
+        }
+
+        // Reset on success
+        user.setFailedLoginAttempts(0);
+        user.setAccountLocked(false);
+        user.setLockExpiry(null);
+        userRepository.save(user);
+
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getRole(), user.getUserId());
+        String rawRefreshToken = persistNewRefreshToken(user.getUserId());
+
+        return new LoginResponseDto(accessToken, rawRefreshToken, user.getRole(),
+                user.getUserId(), user.getEmail(), user.getName());
+    }
+
+    @Override
+    @Transactional
+    public Map<String, String> refresh(RefreshTokenRequestDto request) {
+        String incoming = request.getRefreshToken();
+
+        RefreshToken stored = refreshTokenRepository.findByToken(incoming)
+                .orElseThrow(() -> new ApiException("Invalid refresh token", HttpStatus.UNAUTHORIZED));
+
+        // ---- Token theft detection ----
+        if (stored.isRevoked()) {
+            // A revoked token was presented — assume the token family is compromised.
+            // Revoke every active token for this user.
+            revokeAllForUser(stored.getUserId());
+            log.warn("Possible token theft detected for userId={}. All refresh tokens revoked.",
+                    stored.getUserId());
+            throw new ApiException("Refresh token already used or revoked", HttpStatus.UNAUTHORIZED);
+        }
+
+        if (stored.getExpiresAt().isBefore(LocalDateTime.now())) {
+            stored.setRevoked(true);
+            refreshTokenRepository.save(stored);
+            throw new ApiException("Refresh token expired", HttpStatus.UNAUTHORIZED);
+        }
+
+        // ---- Rotation: revoke old, issue new ----
+        stored.setRevoked(true);
+        refreshTokenRepository.save(stored);
+
+        User user = userRepository.findById(stored.getUserId())
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.UNAUTHORIZED));
+
+        if (!user.isActive()) {
+            throw new ApiException("Account is suspended", HttpStatus.FORBIDDEN);
+        }
+
+        String newAccess = jwtUtil.generateAccessToken(user.getEmail(), user.getRole(), user.getUserId());
+        String newRawRefresh = persistNewRefreshToken(user.getUserId());
+
+        return Map.of("accessToken", newAccess, "refreshToken", newRawRefresh);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
+            revokeAllForUser(user.getUserId());
+            // Belt-and-suspenders: clear the legacy field too
+            user.setRefreshToken(null);
+            userRepository.save(user);
+        });
+    }
+
+    @Override
+    @Transactional
+    public void forgotPassword(ForgotPasswordRequestDto request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("No account found with that email", HttpStatus.NOT_FOUND));
+
+        String otp = generateOtp();
+        user.setResetOtp(passwordEncoder.encode(otp));
+        user.setResetOtpExpiry(LocalDateTime.now().plusMinutes(OTP_EXPIRY_MINUTES));
+        userRepository.save(user);
+
+        emailService.sendOtpEmail(user.getEmail(), otp);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void verifyOtp(String email, String otp) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+        validateOtp(user, otp);
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(ResetPasswordRequestDto request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+
+        validateOtp(user, request.getOtp());
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        user.setResetOtp(null);
+        user.setResetOtpExpiry(null);
+        user.setRefreshToken(null); // clear legacy field
+        userRepository.save(user);
+
+        // Invalidate all active sessions on password change
+        revokeAllForUser(user.getUserId());
+    }
+
+    // ---- helpers ----
+
+    /** Generates a UUID opaque token, persists it, and returns the raw string. */
+    private String persistNewRefreshToken(Long userId) {
+        String raw = UUID.randomUUID().toString();
+        LocalDateTime expiresAt = LocalDateTime.now()
+                .plusSeconds(refreshTokenExpirationMs / 1000);
+
+        RefreshToken rt = new RefreshToken();
+        rt.setToken(raw);
+        rt.setUserId(userId);
+        rt.setExpiresAt(expiresAt);
+        rt.setRevoked(false);
+        refreshTokenRepository.save(rt);
+        return raw;
+    }
+
+    /** Marks every token for the given user as revoked. */
+    private void revokeAllForUser(Long userId) {
+        List<RefreshToken> tokens = refreshTokenRepository.findAllByUserId(userId);
+        tokens.forEach(t -> t.setRevoked(true));
+        refreshTokenRepository.saveAll(tokens);
+    }
+
+    private void validateOtp(User user, String rawOtp) {
+        if (user.getResetOtp() == null || user.getResetOtpExpiry() == null) {
+            throw new ApiException("No OTP requested", HttpStatus.BAD_REQUEST);
+        }
+        if (LocalDateTime.now().isAfter(user.getResetOtpExpiry())) {
+            throw new ApiException("OTP has expired", HttpStatus.BAD_REQUEST);
+        }
+        if (!passwordEncoder.matches(rawOtp, user.getResetOtp())) {
+            throw new ApiException("Invalid OTP", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private String generateOtp() {
+        SecureRandom rng = new SecureRandom();
+        int value = rng.nextInt(1_000_000);
+        return String.format("%06d", value);
+    }
+}
+
 
 @Service
 @RequiredArgsConstructor
