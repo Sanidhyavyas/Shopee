@@ -10,6 +10,7 @@ import com.shopee.shopee_backend.repository.OrderRepository;
 import com.shopee.shopee_backend.repository.ProductRepository;
 import com.shopee.shopee_backend.repository.UserRepository;
 import com.shopee.shopee_backend.service.AdminService;
+import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -33,6 +34,7 @@ public class AdminServiceImpl implements AdminService {
     private final ModelMapper modelMapper;
     private final BCryptPasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -94,6 +96,13 @@ public class AdminServiceImpl implements AdminService {
         response.setEmail(owner.getEmail());
         response.setTemporaryPassword(rawPassword != null ? rawPassword : "Already registered");
         response.setMessage("Franchise created successfully");
+
+        FranchiseDto franchiseDto = modelMapper.map(saved, FranchiseDto.class);
+        franchiseDto.setOwnerEmail(saved.getOwner().getEmail());
+        franchiseDto.setOwnerMobile(saved.getOwner().getMobile());
+        auditLogService.log("CREATE_FRANCHISE", "Franchise",
+                String.valueOf(saved.getFranchiseId()), null, franchiseDto);
+
         return response;
     }
 
@@ -131,6 +140,10 @@ public class AdminServiceImpl implements AdminService {
         Franchise franchise = franchiseRepository.findById(franchiseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Franchise not found: " + franchiseId));
 
+        FranchiseDto oldDto = modelMapper.map(franchise, FranchiseDto.class);
+        oldDto.setOwnerEmail(franchise.getOwner().getEmail());
+        oldDto.setOwnerMobile(franchise.getOwner().getMobile());
+
         if (request.getOutletName() != null) franchise.setOutletName(request.getOutletName());
         if (request.getAddress() != null) franchise.setAddress(request.getAddress());
         if (request.getCity() != null) franchise.setCity(request.getCity());
@@ -145,6 +158,9 @@ public class AdminServiceImpl implements AdminService {
         FranchiseDto dto = modelMapper.map(saved, FranchiseDto.class);
         dto.setOwnerEmail(saved.getOwner().getEmail());
         dto.setOwnerMobile(saved.getOwner().getMobile());
+
+        auditLogService.log("UPDATE_FRANCHISE", "Franchise",
+                String.valueOf(franchiseId), oldDto, dto);
         return dto;
     }
 
@@ -166,8 +182,12 @@ public class AdminServiceImpl implements AdminService {
     public UserDto updateUserStatus(Long userId, UpdateUserStatusRequestDto request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userId));
+        boolean oldStatus = user.isActive();
         user.setActive(request.getActive());
-        return modelMapper.map(userRepository.save(user), UserDto.class);
+        UserDto updated = modelMapper.map(userRepository.save(user), UserDto.class);
+        auditLogService.log("UPDATE_USER_STATUS", "User",
+                String.valueOf(userId), oldStatus, request.getActive());
+        return updated;
     }
 
     // ---- helpers ----

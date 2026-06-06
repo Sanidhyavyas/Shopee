@@ -1,4 +1,27 @@
 -- =========================
+-- AUDIT LOG
+-- =========================
+CREATE TABLE IF NOT EXISTS audit_log (
+    id             BIGSERIAL PRIMARY KEY,
+    actor_id       BIGINT        NOT NULL,
+    actor_email    VARCHAR(255)  NOT NULL,
+    actor_role     VARCHAR(50)   NOT NULL,
+    action         VARCHAR(100)  NOT NULL,
+    entity_type    VARCHAR(100)  NOT NULL,
+    entity_id      VARCHAR(255)  NOT NULL,
+    old_value      TEXT,
+    new_value      TEXT,
+    ip_address     VARCHAR(45),
+    timestamp      TIMESTAMP     NOT NULL DEFAULT NOW(),
+    franchise_id   BIGINT
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_log_actor_id     ON audit_log (actor_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_entity       ON audit_log (entity_type, entity_id);
+CREATE INDEX IF NOT EXISTS idx_audit_log_franchise_ts ON audit_log (franchise_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_audit_log_action       ON audit_log (action);
+
+-- =========================
 -- USERS (password = 123456)
 -- =========================
 INSERT INTO users (name, email, mobile, password, role, active, created_at)

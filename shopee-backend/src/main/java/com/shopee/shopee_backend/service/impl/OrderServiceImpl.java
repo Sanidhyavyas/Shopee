@@ -15,6 +15,7 @@ import com.shopee.shopee_backend.exception.ResourceNotFoundException;
 import com.shopee.shopee_backend.repository.FranchiseRepository;
 import com.shopee.shopee_backend.repository.OrderRepository;
 import com.shopee.shopee_backend.repository.ProductRepository;
+import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final FranchiseRepository franchiseRepository;
     private final ProductRepository productRepository;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -107,7 +109,10 @@ public class OrderServiceImpl implements OrderService {
         order.setItems(items);
         order.setTotalAmount(total);
 
-        return toDto(orderRepository.save(order));
+        OrderDto saved = toDto(orderRepository.save(order));
+        auditLogService.log("CREATE_ORDER", "Order",
+                String.valueOf(saved.getOrderId()), null, saved);
+        return saved;
     }
 
     @Override
@@ -119,12 +124,16 @@ public class OrderServiceImpl implements OrderService {
             throw new ApiException("Cannot update a cancelled order", HttpStatus.BAD_REQUEST);
         }
 
+        String oldStatus = order.getStatus().name();
         order.setStatus(request.getStatus());
         if (request.getPaid() != null) {
             order.setPaid(request.getPaid());
         }
         order.setUpdatedAt(LocalDateTime.now());
-        return toDto(orderRepository.save(order));
+        OrderDto updated = toDto(orderRepository.save(order));
+        auditLogService.log("UPDATE_ORDER_STATUS", "Order",
+                String.valueOf(orderId), oldStatus, updated.getStatus());
+        return updated;
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.shopee.shopee_backend.exception.ApiException;
 import com.shopee.shopee_backend.exception.ResourceNotFoundException;
 import com.shopee.shopee_backend.repository.FranchiseRepository;
 import com.shopee.shopee_backend.repository.UserRepository;
+import com.shopee.shopee_backend.service.AuditLogService;
 import com.shopee.shopee_backend.service.EmailService;
 import com.shopee.shopee_backend.service.StaffService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class StaffServiceImpl implements StaffService {
     private final FranchiseRepository franchiseRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AuditLogService auditLogService;
 
     @Override
     @Transactional(readOnly = true)
@@ -63,7 +65,10 @@ public class StaffServiceImpl implements StaffService {
 
         emailService.sendWelcomeEmail(user.getEmail(), user.getName(), tempPassword);
 
-        return toDto(user);
+        StaffDto created = toDto(user);
+        auditLogService.log("CREATE_STAFF", "User",
+                String.valueOf(user.getUserId()), null, created);
+        return created;
     }
 
     @Override
