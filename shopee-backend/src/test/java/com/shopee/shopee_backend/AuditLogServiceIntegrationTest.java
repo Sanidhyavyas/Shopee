@@ -9,7 +9,6 @@ import com.shopee.shopee_backend.entity.Product;
 import com.shopee.shopee_backend.entity.User;
 import com.shopee.shopee_backend.repository.AuditLogRepository;
 import com.shopee.shopee_backend.repository.FranchiseRepository;
-import com.shopee.shopee_backend.repository.OrderRepository;
 import com.shopee.shopee_backend.repository.ProductRepository;
 import com.shopee.shopee_backend.repository.UserRepository;
 import com.shopee.shopee_backend.service.AuditLogService;
@@ -78,7 +77,6 @@ class AuditLogServiceIntegrationTest {
     @Autowired private AuditLogService    auditLogService;
     @Autowired private AuditLogRepository auditLogRepository;
     @Autowired private OrderService       orderService;
-    @Autowired private OrderRepository    orderRepository;
     @Autowired private ProductRepository  productRepository;
     @Autowired private FranchiseRepository franchiseRepository;
     @Autowired private UserRepository     userRepository;
