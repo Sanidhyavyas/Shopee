@@ -1,0 +1,78 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Base64-encoded HMAC-SHA256 signing secret for JWT tokens."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "Access token expiration time in milliseconds (e.g. 900000 = 15 min)."
+    },
+    {
+      "name": "jwt.refresh-expiration",
+      "type": "java.lang.Long",
+      "description": "Refresh token expiration time in milliseconds (e.g. 604800000 = 7 days)."
+    },
+    {
+      "name": "audit.log.retention-days",
+      "type": "java.lang.Integer",
+      "description": "Number of days to retain audit log entries before cleanup.",
+      "defaultValue": 90
+    },
+    {
+      "name": "audit.log.cleanup-cron",
+      "type": "java.lang.String",
+      "description": "Cron expression for the scheduled audit log cleanup job.",
+      "defaultValue": "0 0 2 * * *"
+    },
+    {
+      "name": "auth.refresh-token.cleanup-retain-days",
+      "type": "java.lang.Integer",
+      "description": "Number of days to retain expired or revoked refresh tokens before deletion.",
+      "defaultValue": 7
+    },
+    {
+      "name": "auth.refresh-token.cleanup-cron",
+      "type": "java.lang.String",
+      "description": "Cron expression for the scheduled refresh token cleanup job.",
+      "defaultValue": "0 30 2 * * *"
+    },
+    {
+      "name": "rate.limit.auth.requests",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of requests allowed per window for auth endpoints (login, forgot-password).",
+      "defaultValue": 5
+    },
+    {
+      "name": "rate.limit.auth.window.minutes",
+      "type": "java.lang.Integer",
+      "description": "Rate-limit window duration in minutes for auth endpoints.",
+      "defaultValue": 1
+    },
+    {
+      "name": "rate.limit.api.requests",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of requests allowed per window for general authenticated API endpoints.",
+      "defaultValue": 100
+    },
+    {
+      "name": "rate.limit.api.window.minutes",
+      "type": "java.lang.Integer",
+      "description": "Rate-limit window duration in minutes for general API endpoints.",
+      "defaultValue": 1
+    },
+    {
+      "name": "app.cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of origins allowed by the CORS policy (e.g. http://localhost:5173)."
+    },
+    {
+      "name": "spring.mail.from",
+      "type": "java.lang.String",
+      "description": "The 'From' address used for outgoing application emails.",
+      "defaultValue": "noreply@shopee.com"
+    }
+  ]
+}
