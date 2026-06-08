@@ -5,8 +5,6 @@ import com.shopee.shopee_backend.dto.StaffDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface StaffService {
 
     Page<StaffDto> getStaffByFranchise(Long franchiseId, Pageable pageable);
