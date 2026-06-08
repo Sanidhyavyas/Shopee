@@ -10,8 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
+import org.springframework.data.redis.serializer.RedisSerializer;
+import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.time.Duration;
@@ -40,14 +41,33 @@ public class CacheConfig {
     @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory,
                                            ObjectMapper redisObjectMapper) {
-        GenericJackson2JsonRedisSerializer serializer =
-                new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+        RedisSerializer<Object> jsonSerializer = new RedisSerializer<>() {
+            @Override
+            public byte[] serialize(Object o) throws SerializationException {
+                if (o == null) return new byte[0];
+                try {
+                    return redisObjectMapper.writeValueAsBytes(o);
+                } catch (Exception ex) {
+                    throw new SerializationException("Redis serialization failed: " + ex.getMessage(), ex);
+                }
+            }
+
+            @Override
+            public Object deserialize(byte[] bytes) throws SerializationException {
+                if (bytes == null || bytes.length == 0) return null;
+                try {
+                    return redisObjectMapper.readValue(bytes, Object.class);
+                } catch (Exception ex) {
+                    throw new SerializationException("Redis deserialization failed: " + ex.getMessage(), ex);
+                }
+            }
+        };
 
         RedisCacheConfiguration defaults = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                         .fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                        .fromSerializer(serializer))
+                        .fromSerializer(jsonSerializer))
                 .disableCachingNullValues();
 
         Map<String, RedisCacheConfiguration> perCacheConfig = Map.of(
