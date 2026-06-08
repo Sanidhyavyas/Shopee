@@ -97,7 +97,7 @@ public class ReportServiceImpl implements ReportService {
             if (o.getStatus() == OrderStatus.CANCELLED) continue;
             LocalDate day = o.getCreatedAt().toLocalDate();
             dailyRev.merge(day, o.getTotalAmount(), BigDecimal::add);
-            dailyCount.merge(day, 1L, Long::sum);
+            dailyCount.merge(day, 1L, (a, b) -> a + b);
         }
         List<SalesSummaryDto.DailyRevenueDto> daily = dailyRev.entrySet().stream()
                 .map(e -> new SalesSummaryDto.DailyRevenueDto(e.getKey(), e.getValue(),
