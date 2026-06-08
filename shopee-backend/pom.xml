@@ -120,6 +120,12 @@
                         <version>3.0.3</version>
                 </dependency>
 
+		<!-- Actuator (health, info, metrics) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
                 <!-- Excel export -->
                 <dependency>
                         <groupId>org.apache.poi</groupId>
@@ -131,7 +137,7 @@
 		<dependency>
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j-core</artifactId>
-			<version>8.14.0</version>
+			<version>8.10.1</version>
 		</dependency>
 
 		<!-- Caching -->
