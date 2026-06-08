@@ -7,8 +7,6 @@ import com.shopee.shopee_backend.entity.OrderStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface OrderService {
 
     Page<OrderDto> getOrdersByFranchise(Long franchiseId, Pageable pageable);
