@@ -79,6 +79,20 @@
     font-weight: 700;
   }
   
+  /* 3b. Content header bar (title + notification bell) */
+  .content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+
+  /* Override the default bottom margin so the h1 doesn't double-space */
+  .content-header h1,
+  .content-header .content-header__title {
+    margin-bottom: 0;
+  }
+
   /* 4. Statistics Grid */
   .stats {
     display: grid;

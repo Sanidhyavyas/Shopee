@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/apiService";
+import FranchiseHeader from "../../components/FranchiseHeader";
 import "../../styles/franchiseDashboard.css";
 
 function FranchiseDashboard() {
@@ -46,7 +47,7 @@ function FranchiseDashboard() {
       </aside>
 
       <main className="content">
-        <h1>Welcome to Your Store</h1>
+        <FranchiseHeader title="Welcome to Your Store" />
 
         <div className="stats">
           <div className="card">
