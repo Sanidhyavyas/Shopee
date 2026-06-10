@@ -9,6 +9,7 @@ import SelectFranchise from "./pages/franchise/SelectFranchise";
 import Products from "./pages/franchise/Products";
 import Orders from "./pages/franchise/Orders";
 import Staff from "./pages/franchise/Staff";
+import Reports from "./pages/franchise/Reports";
 
 function NotFound() {
   return (
@@ -99,65 +100,16 @@ function App() {
         }
       />
 
+      <Route
+        path="/franchise/reports"
+        element={
+          <RequireAuth allowedRole="FRANCHISE_ADMIN">
+            <Reports />
+          </RequireAuth>
+        }
+      />
+
       <Route path="*" element={<NotFound />} />
-    </Routes>
-  );
-}
-
-export default App;
-
-
-function App() {
-  return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-
-      {/* SUPER ADMIN ROUTES */}
-      <Route
-        path="/admin/dashboard"
-        element={
-          <RequireAuth allowedRole="SUPER_ADMIN">
-            <AdminDashboard />
-          </RequireAuth>
-        }
-      />
-
-      <Route
-        path="/admin/register-franchise"
-        element={
-          <RequireAuth allowedRole="SUPER_ADMIN">
-            <RegisterFranchise />
-          </RequireAuth>
-        }
-      />
-
-      <Route
-        path="/admin/view-franchises"
-        element={
-          <RequireAuth allowedRole="SUPER_ADMIN">
-            <ViewFranchise />
-          </RequireAuth>
-        }
-      />
-
-      {/* FRANCHISE ADMIN ROUTES */}
-      <Route
-        path="/select-franchise"
-        element={
-          <RequireAuth allowedRole="FRANCHISE_ADMIN">
-            <SelectFranchise />
-          </RequireAuth>
-        }
-      />
-
-      <Route
-        path="/franchise/dashboard"
-        element={
-          <RequireAuth allowedRole="FRANCHISE_ADMIN">
-            <FranchiseDashboard />
-          </RequireAuth>
-        }
-      />
     </Routes>
   );
 }

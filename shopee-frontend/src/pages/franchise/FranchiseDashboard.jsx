@@ -40,6 +40,7 @@ function FranchiseDashboard() {
         <button onClick={() => navigate("/franchise/products")}>Products</button>
         <button onClick={() => navigate("/franchise/orders")}>Orders</button>
         <button onClick={() => navigate("/franchise/staff")}>Staff</button>
+        <button onClick={() => navigate("/franchise/reports")}>Reports</button>
 
         <button className="logout" onClick={handleLogout}>Logout</button>
       </aside>
