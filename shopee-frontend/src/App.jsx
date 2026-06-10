@@ -10,6 +10,7 @@ import Products from "./pages/franchise/Products";
 import Orders from "./pages/franchise/Orders";
 import Staff from "./pages/franchise/Staff";
 import Reports from "./pages/franchise/Reports";
+import AuditLogs from "./pages/admin/AuditLogs";
 
 function NotFound() {
   return (
@@ -54,7 +55,16 @@ function App() {
         }
       />
 
-      {/* FRANCHISE ADMIN ROUTES */}
+      <Route
+        path="/admin/audit-logs"
+        element={
+          <RequireAuth allowedRole="SUPER_ADMIN">
+            <AuditLogs />
+          </RequireAuth>
+        }
+      />
+
+      {/* FRANCHISE ADMIN ROUTES */
       <Route
         path="/select-franchise"
         element={

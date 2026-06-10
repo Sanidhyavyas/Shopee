@@ -42,6 +42,7 @@ function AdminDashboard() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem" }}>
         <NavCard title="Register Franchise" desc="Add a new franchise outlet" onClick={() => navigate("/admin/register-franchise")} color="#6366f1" />
         <NavCard title="View Franchises" desc="Manage all registered outlets" onClick={() => navigate("/admin/view-franchises")} color="#3b82f6" />
+        <NavCard title="Audit Logs" desc="View system activity and changes" onClick={() => navigate("/admin/audit-logs")} color="#f59e0b" />
       </div>
     </div>
   );
