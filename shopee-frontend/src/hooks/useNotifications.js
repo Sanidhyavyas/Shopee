@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNotificationAlerts } from "./useNotificationAlerts";
 
 // Derived from apiService.js base URL — strip /api suffix for WebSocket origin
 const API_BASE = "http://localhost:8081/api";
@@ -41,6 +42,11 @@ export function useNotifications(franchiseId) {
   // Always up-to-date franchiseId without making callbacks depend on state
   const franchiseIdRef = useRef(franchiseId);
   franchiseIdRef.current = franchiseId;
+
+  // Alert effects (beep + tab flash) — ref so connectWebSocket stays stable
+  const { triggerAlert } = useNotificationAlerts();
+  const triggerAlertRef = useRef(triggerAlert);
+  triggerAlertRef.current = triggerAlert;
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
   // Stable — reads franchiseId from ref so the dep array can stay empty
@@ -120,7 +126,10 @@ export function useNotifications(franchiseId) {
           // De-duplicate: ignore if already in the list
           prev.some((x) => x.id === n.id) ? prev : [n, ...prev]
         );
-        if (!n.read) setUnreadCount((c) => c + 1);
+        if (!n.read) {
+          setUnreadCount((c) => c + 1);
+          triggerAlertRef.current(); // beep + tab flash when tab is hidden
+        }
       } catch {
         // Malformed frame — ignore
       }
