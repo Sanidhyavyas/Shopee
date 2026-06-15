@@ -1,6 +1,5 @@
 package com.shopee.shopee_backend.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -28,15 +27,17 @@ import java.util.List;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    @Lazy
-    private JwtAuthenticationFilter jwtAuthFilter;
+    private final JwtAuthenticationFilter jwtAuthFilter;
+    private final RateLimitingFilter rateLimitingFilter;
+    private final UserDetailsService userDetailsService;
 
-    @Autowired
-    private RateLimitingFilter rateLimitingFilter;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
+    public SecurityConfig(@Lazy JwtAuthenticationFilter jwtAuthFilter,
+                          RateLimitingFilter rateLimitingFilter,
+                          UserDetailsService userDetailsService) {
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.rateLimitingFilter = rateLimitingFilter;
+        this.userDetailsService = userDetailsService;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
