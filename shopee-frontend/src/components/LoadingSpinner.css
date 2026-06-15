@@ -1,0 +1,21 @@
+.spinner-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 200px;
+}
+
+.spinner {
+  border: 3px solid #e5e7eb;
+  border-top-color: #6366f1;
+  border-right-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
